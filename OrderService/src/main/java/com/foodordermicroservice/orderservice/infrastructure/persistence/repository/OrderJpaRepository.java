@@ -1,4 +1,9 @@
 package com.foodordermicroservice.orderservice.infrastructure.persistence.repository;
 
-public interface OrderJpaRepository {
+import com.foodordermicroservice.orderservice.infrastructure.persistence.entity.OrderEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface OrderJpaRepository extends JpaRepository<OrderEntity, UUID> {
 }

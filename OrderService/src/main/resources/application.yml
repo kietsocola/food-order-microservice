@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orders
+    username: postgres
+    password: 123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+      show-sql: true
+
+  cloud:
+    stream:
+      bindings:
+        order-out:
+          destination: order-events
+          content-type: application/json
+        payment-in:
+          destination: payment-events
+          group: order-service
+          content-type: application/json
+      rabbit:
+        bindings:
+          order-out:
+            producer:
+              routing-key-expression: headers['type']
+          payment-in:
+            payment-in:
+                consumer:
+                    queue-name-group-only: true

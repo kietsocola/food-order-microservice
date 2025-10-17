@@ -1,4 +1,9 @@
 package com.foodordermicroservice.orderservice.domain.valueobject;
 
-public class OrderRequest {
+import java.util.List;
+
+public record OrderRequest(String customerId,
+                           String venuesId,
+                           String address,
+                           List<OrderItemRequest> orderItems) {
 }

@@ -1,17 +1,16 @@
 package com.foodordermicroservice.orderservice.infrastructure.message.rabbitmq.publisher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.foodordermicroservice.common.domain.valueobject.OrderStatus;
-import com.foodordermicroservice.orderservice.application.port.OrderEventPublisher;
+import com.foodordermicroservice.common.infrastructure.outbox.OutboxStatus;
 import com.foodordermicroservice.orderservice.application.port.OutBoxServicePort;
 import com.foodordermicroservice.orderservice.infrastructure.message.outbox.OutBoxEntity;
 import com.foodordermicroservice.orderservice.infrastructure.message.outbox.OutBoxRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class OutboxService implements OutBoxServicePort {
     private final OutBoxRepository outBoxRepository;
@@ -24,7 +23,7 @@ public class OutboxService implements OutBoxServicePort {
                 .aggregateId(getAggregateId(event))
                 .type(event.getClass().getSimpleName())
                 .payload(toJson(event))
-                .status(OrderStatus.PENDING.name())
+                .status(OutboxStatus.STARTED.name())
                 .createdAt(Instant.now())
                 .build();
         outBoxRepository.save(outBoxEntity);
@@ -33,8 +32,8 @@ public class OutboxService implements OutBoxServicePort {
     private String getAggregateId(Object event) {
         // Giả sử tất cả event có method getAggregate()
         try {
-            var aggregate = event.getClass().getMethod("getAggregate").invoke(event);
-            return aggregate.getClass().getMethod("getId").invoke(aggregate).toString();
+            var aggregate = event.getClass().getMethod("getAggregateRoot").invoke(event);
+            return aggregate.getClass().getMethod("getIdValue").invoke(aggregate).toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
